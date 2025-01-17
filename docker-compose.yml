@@ -1,0 +1,11 @@
+services:
+  configserver:
+    image: devsouzx/letterboxd-configserver:latest
+    environment:
+      - "SPRING_PROFILES_ACTIVE=local"
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 800M
+    restart: always
