@@ -1,12 +1,13 @@
 server:
-  port: 8080
+  port: 8889
 
 spring:
+  profiles:
+    active: native
   application:
     name: configserver
   cloud:
     config:
       server:
-        git:
-          uri: https://github.com/devsouzx/Letterboxd-Clone-Microservicos-Repository
-          default-label: main
+        native:
+          search-locations: classpath:/configurations
