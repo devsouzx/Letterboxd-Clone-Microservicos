@@ -1,6 +1,6 @@
 spring:
   application:
-    name: discovery
+    name: accounts
   jpa:
     fail-fast: true
   cloud:
