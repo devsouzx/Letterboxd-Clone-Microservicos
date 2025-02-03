@@ -1,6 +1,11 @@
 server:
   port: 8085
 
+redis:
+  host: localhost
+  port: 6379
+  password: 9087t6ftghdfjio9
+
 eureka:
   client:
     service-url:
@@ -14,8 +19,8 @@ spring:
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/accounts
-    username: letterboxdclone_admin
-    password: admin123
+    username: devsouzx
+    password: joaoemanuel19
   jpa:
     hibernate:
       ddl-auto: create
