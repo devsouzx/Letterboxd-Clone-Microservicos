@@ -9,30 +9,23 @@ import com.devsouzx.accounts.service.redis.RedisService;
 import com.devsouzx.accounts.service.register.IUsersRegisterService;
 import com.devsouzx.accounts.util.PasswordValidatorHelper;
 import com.devsouzx.accounts.util.RandomNumberUtil;
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-@Slf4j
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+
 @Service
 public class UsersRegisterServiceImpl implements IUsersRegisterService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final RedisService redisService;
-    private final KafkaTemplate<String, String> kafkaTemplate;
-    private static final String TOPIC = "twitterclone-new-register";
-    private static final Integer PAUSE_TIME = 15000;
-    private static final Integer LIMIT_TIME = 300;
 
-    public UsersRegisterServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, RedisService redisService, KafkaTemplate<String, String> kafkaTemplate) {
+    public UsersRegisterServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, RedisService redisService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.redisService = redisService;
-        this.kafkaTemplate = kafkaTemplate;
     }
 
     @Override
@@ -92,20 +85,6 @@ public class UsersRegisterServiceImpl implements IUsersRegisterService {
         redisService.removeKey(email);
     }
 
-    private void trySendKafkaMessage(String email) throws Exception {
-        boolean notSent = true;
-        int waitingTime = 0;
-
-        do {
-            try {
-                kafkaTemplate.send(TOPIC, email);
-                notSent = false;
-                log.error("Mensagem enviada com SUCESSO para o tópico: {}", TOPIC);
-            } catch (Exception e) {
-                log.error("Erro ao enviar mensagem para o tópico: {}", TOPIC);
-                Thread.sleep(PAUSE_TIME);
-                waitingTime += 15;
-            }
-        } while (notSent && waitingTime <= LIMIT_TIME);
+    private void trySendKafkaMessage(String string) {
     }
 }
