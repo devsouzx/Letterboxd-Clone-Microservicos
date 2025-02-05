@@ -10,7 +10,7 @@ public class KafkaTopicConfig {
     @Bean
     public NewTopic topic() {
         return TopicBuilder
-                .name("letteboxdclone-new-register")
+                .name("letterboxdclone-new-register")
                 .build();
     }
 }
