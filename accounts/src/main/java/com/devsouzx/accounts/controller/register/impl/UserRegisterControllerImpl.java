@@ -22,7 +22,7 @@ public class UserRegisterControllerImpl {
     }
 
     @GetMapping(value = "/user/validate.do/{code}")
-    public ResponseEntity<Void> confirmCode(@RequestParam("email") String email,
+    public ResponseEntity<Void> confirmCode(@RequestBody String email,
                                              @PathVariable("code") String code) throws Exception {
         iUsersRegisterService.validateAccount(email, code);
         return new ResponseEntity<>(HttpStatus.CREATED);

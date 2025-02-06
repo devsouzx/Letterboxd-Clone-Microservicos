@@ -40,11 +40,11 @@ public class UsersRegisterServiceImpl implements IUsersRegisterService {
     public void register(UserRegistrationRequest request) throws Exception {
         Optional<User> user = userRepository.findByUsername(request.getUsername());
         if (user.isPresent()) {
-            throw new UsernameAlreadyExistsException();
+            throw new UsernameAlreadyExistsException("Someone has already taken that username.");
         }
         user = userRepository.findByEmail(request.getEmail());
         if (user.isPresent()) {
-            throw new EmailAlreadyExistsException();
+            throw new EmailAlreadyExistsException("That email address is already associated with an account.");
         }
 
         if (!PasswordValidatorHelper.isValidPassword(request.getPassword())) {
@@ -55,8 +55,13 @@ public class UsersRegisterServiceImpl implements IUsersRegisterService {
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .username(request.getUsername())
+                .adultContent(false)
+                .confirmedEmail(false)
+                .includeProfileInMembers(true)
+                .customPosters(true)
                 .registrationTime(LocalDateTime.now())
                 .firstAccess(true)
+                .verified(false)
                 .build());
 
         sendValidationEmail(request.getEmail());
@@ -78,6 +83,7 @@ public class UsersRegisterServiceImpl implements IUsersRegisterService {
         }
 
         trySendKafkaMessage(confirmationCodeResponse.toString());
+        log.error(confirmationCodeResponse.getConfirmationCode());
     }
 
     @Override
@@ -97,6 +103,7 @@ public class UsersRegisterServiceImpl implements IUsersRegisterService {
         redisService.removeKey(email);
     }
 
+    @Transactional
     private void trySendKafkaMessage(String email) throws Exception {
         try {
             kafkaTemplate.send(TOPIC, email);
