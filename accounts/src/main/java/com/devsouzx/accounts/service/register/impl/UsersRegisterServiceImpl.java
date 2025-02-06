@@ -12,6 +12,8 @@ import com.devsouzx.accounts.util.RandomNumberUtil;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,9 +36,16 @@ public class UsersRegisterServiceImpl implements IUsersRegisterService {
     }
 
     @Override
+    @Transactional
     public void register(UserRegistrationRequest request) throws Exception {
-        User user = userRepository.findByUsername(request.getUsername()).orElseThrow(UsernameAlreadyExistsException::new);
-        user = userRepository.findByEmail(request.getEmail()).orElseThrow(EmailAlreadyExistsException::new);
+        Optional<User> user = userRepository.findByUsername(request.getUsername());
+        if (user.isPresent()) {
+            throw new UsernameAlreadyExistsException();
+        }
+        user = userRepository.findByEmail(request.getEmail());
+        if (user.isPresent()) {
+            throw new EmailAlreadyExistsException();
+        }
 
         if (!PasswordValidatorHelper.isValidPassword(request.getPassword())) {
             throw new InvalidPasswordException();
@@ -54,11 +63,9 @@ public class UsersRegisterServiceImpl implements IUsersRegisterService {
     }
 
     @Override
+    @Transactional
     public void sendValidationEmail(String email) throws Exception {
         Optional<User> user = userRepository.findByEmail(email);
-        if(user.isPresent()){
-            throw new UsernameAlreadyExistsException();
-        }
 
         UserConfirmationCodeResponse confirmationCodeResponse = (UserConfirmationCodeResponse) redisService.getValue(email, UserConfirmationCodeResponse.class);
         if(confirmationCodeResponse == null){
