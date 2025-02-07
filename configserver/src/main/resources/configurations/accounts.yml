@@ -6,6 +6,10 @@ redis:
   port: 6379
   password:
 
+jwt:
+  secret: eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N9dPip32yQynt59595E
+  expiration: 86400000
+
 eureka:
   client:
     service-url:

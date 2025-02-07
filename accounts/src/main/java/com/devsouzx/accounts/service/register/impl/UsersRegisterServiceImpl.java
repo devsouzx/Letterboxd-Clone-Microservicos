@@ -62,6 +62,7 @@ public class UsersRegisterServiceImpl implements IUsersRegisterService {
                 .registrationTime(LocalDateTime.now())
                 .firstAccess(true)
                 .verified(false)
+                .role(User.Role.USER)
                 .build());
 
         sendValidationEmail(request.getEmail());
