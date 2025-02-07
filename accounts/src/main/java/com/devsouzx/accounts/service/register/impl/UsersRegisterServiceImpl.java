@@ -5,6 +5,7 @@ import com.devsouzx.accounts.database.repository.UserRepository;
 import com.devsouzx.accounts.dto.user.UserConfirmationCodeResponse;
 import com.devsouzx.accounts.dto.user.UserRegistrationRequest;
 import com.devsouzx.accounts.handler.exceptions.*;
+import com.devsouzx.accounts.service.jwt.JwtService;
 import com.devsouzx.accounts.service.redis.RedisService;
 import com.devsouzx.accounts.service.register.IUsersRegisterService;
 import com.devsouzx.accounts.util.PasswordValidatorHelper;
@@ -16,6 +17,9 @@ import java.util.concurrent.TimeUnit;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -25,19 +29,23 @@ public class UsersRegisterServiceImpl implements IUsersRegisterService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final RedisService redisService;
+    private final JwtService jwtService;
+    private final AuthenticationManager authenticationManager;
     private final KafkaTemplate<String, String> kafkaTemplate;
     private static final String TOPIC = "letterboxdclone-new-register";
 
-    public UsersRegisterServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, RedisService redisService, KafkaTemplate<String, String> kafkaTemplate) {
+    public UsersRegisterServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, RedisService redisService, JwtService jwtService, AuthenticationManager authenticationManager, KafkaTemplate<String, String> kafkaTemplate) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.redisService = redisService;
+        this.jwtService = jwtService;
+        this.authenticationManager = authenticationManager;
         this.kafkaTemplate = kafkaTemplate;
     }
 
     @Override
     @Transactional
-    public void register(UserRegistrationRequest request) throws Exception {
+    public String register(UserRegistrationRequest request) throws Exception {
         Optional<User> user = userRepository.findByUsername(request.getUsername());
         if (user.isPresent()) {
             throw new UsernameAlreadyExistsException("Someone has already taken that username.");
@@ -65,13 +73,20 @@ public class UsersRegisterServiceImpl implements IUsersRegisterService {
                 .role(User.Role.USER)
                 .build());
 
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+        );
+        final UserDetails userDetails = getUserByEmail(request.getEmail());
+
         sendValidationEmail(request.getEmail());
+
+        return jwtService.generateToken(userDetails);
     }
 
     @Override
     @Transactional
     public void sendValidationEmail(String email) throws Exception {
-        Optional<User> user = userRepository.findByEmail(email);
+        User user = getUserByEmail(email);
 
         UserConfirmationCodeResponse confirmationCodeResponse = (UserConfirmationCodeResponse) redisService.getValue(email, UserConfirmationCodeResponse.class);
         if(confirmationCodeResponse == null){
@@ -89,7 +104,7 @@ public class UsersRegisterServiceImpl implements IUsersRegisterService {
 
     @Override
     public void validateAccount(String email, String code) throws Exception {
-        User user = userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
+        User user = getUserByEmail(email);
 
         UserConfirmationCodeResponse confirmationCodeResponse = (UserConfirmationCodeResponse) redisService.getValue(email, UserConfirmationCodeResponse.class);
         if (!confirmationCodeResponse.getConfirmationCode().equals(code)) {
@@ -112,5 +127,9 @@ public class UsersRegisterServiceImpl implements IUsersRegisterService {
         } catch (Exception e) {
             log.error("Erro ao enviar mensagem para o tópico: {}", TOPIC);
         }
+    }
+
+    public User getUserByEmail(String email) throws Exception {
+        return userRepository.findByEmail(email).orElseThrow(()-> new UserNotFoundException("User not found"));
     }
 }
