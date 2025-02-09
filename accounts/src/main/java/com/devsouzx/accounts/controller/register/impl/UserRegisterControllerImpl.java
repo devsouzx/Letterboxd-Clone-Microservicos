@@ -2,10 +2,7 @@ package com.devsouzx.accounts.controller.register.impl;
 
 import com.devsouzx.accounts.controller.register.IUserRegisterController;
 import com.devsouzx.accounts.database.model.User;
-import com.devsouzx.accounts.dto.user.AuthRequest;
-import com.devsouzx.accounts.dto.user.TokenResponse;
-import com.devsouzx.accounts.dto.user.UserRegistrationRequest;
-import com.devsouzx.accounts.dto.user.UserResetPasswordRequest;
+import com.devsouzx.accounts.dto.user.*;
 import com.devsouzx.accounts.service.auth.IUsersAuthenticationService;
 import com.devsouzx.accounts.service.redis.RedisService;
 import org.springframework.http.HttpStatus;
@@ -15,14 +12,17 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping(value = "/api/v1")
 public class UserRegisterControllerImpl implements IUserRegisterController {
     private final IUsersAuthenticationService iUsersAuthenticationService;
-    private RedisService redisService;
+    private final RedisService redisService;
 
-    public UserRegisterControllerImpl(IUsersAuthenticationService iUsersAuthenticationService) {
+    public UserRegisterControllerImpl(IUsersAuthenticationService iUsersAuthenticationService, RedisService redisService) {
         this.iUsersAuthenticationService = iUsersAuthenticationService;
+        this.redisService = redisService;
     }
 
     @PostMapping(value = "/register")
@@ -46,8 +46,16 @@ public class UserRegisterControllerImpl implements IUserRegisterController {
     }
 
     @GetMapping(value = "/user/request-password-reset/")
-    public ResponseEntity<Void> sendRequestPasswordResetEmail(@RequestBody UserResetPasswordRequest request) throws Exception {
+    public ResponseEntity<Void> sendRequestPasswordResetEmail(@RequestBody UserRequestResetPasswordRequest request) throws Exception {
         iUsersAuthenticationService.sendPasswordResetEmail(request.getEmail());
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @PostMapping(value = "/user/resetpassword/")
+    public ResponseEntity<Void> resetPassword(@RequestParam("id") UUID id,
+                                              @RequestParam("hash") String code,
+                                              @RequestBody UserResetPasswordRequest request) throws Exception {
+        iUsersAuthenticationService.resetPassword(request, id, code);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }

@@ -11,6 +11,7 @@ import com.devsouzx.accounts.util.PasswordValidatorHelper;
 import com.devsouzx.accounts.util.RandomNumberUtil;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import jakarta.transaction.Transactional;
@@ -30,7 +31,8 @@ public class UsersAuthenticationServiceImpl implements IUsersAuthenticationServi
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final KafkaTemplate<String, String> kafkaTemplate;
-    private static final String TOPIC = "letterboxdclone-new-register";
+    private static final String REGISTRATION_TOPIC = "letterboxdclone-new-register";
+    private static final String PASSWORD_RESET_TOPIC = "letterboxdclone-password-reset";
 
     public UsersAuthenticationServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, RedisService redisService, JwtService jwtService, AuthenticationManager authenticationManager, KafkaTemplate<String, String> kafkaTemplate) {
         this.userRepository = userRepository;
@@ -45,17 +47,11 @@ public class UsersAuthenticationServiceImpl implements IUsersAuthenticationServi
     @Transactional
     public TokenResponse register(UserRegistrationRequest request) throws Exception {
         Optional<User> user = userRepository.findByUsername(request.getUsername());
-        if (user.isPresent()) {
-            throw new UsernameAlreadyExistsException("Someone has already taken that username.");
-        }
+        if (user.isPresent()) throw new UsernameAlreadyExistsException("Someone has already taken that username.");
         user = userRepository.findByEmail(request.getEmail());
-        if (user.isPresent()) {
-            throw new EmailAlreadyExistsException("That email address is already associated with an account.");
-        }
+        if (user.isPresent()) throw new EmailAlreadyExistsException("That email address is already associated with an account.");
 
-        if (!PasswordValidatorHelper.isValidPassword(request.getPassword())) {
-            throw new InvalidPasswordException();
-        }
+        if (!PasswordValidatorHelper.isValidPassword(request.getPassword())) throw new InvalidPasswordException();
 
         userRepository.save(User.builder()
                 .email(request.getEmail())
@@ -112,27 +108,46 @@ public class UsersAuthenticationServiceImpl implements IUsersAuthenticationServi
             redisService.setValue(email, confirmationCodeResponse, TimeUnit.MILLISECONDS, 1800000L, true);
         }
 
-        trySendKafkaMessage(confirmationCodeResponse.toString());
-        log.error(confirmationCodeResponse.getConfirmationCode());
+        trySendKafkaMessage(confirmationCodeResponse.toString(), REGISTRATION_TOPIC);
+        log.error(confirmationCodeResponse.toString());
     }
 
     @Transactional
     @Override
     public void sendPasswordResetEmail(String email) throws Exception {
         UserResetPasswordResponse userResetPasswordResponse =
-                (UserResetPasswordResponse) redisService.getValue(email, UserResetPasswordResponse.class);
+                (UserResetPasswordResponse) redisService.getValue("PASSWORDREQUEST_" + email, UserResetPasswordResponse.class);
         if (userResetPasswordResponse == null) {
             userResetPasswordResponse = UserResetPasswordResponse.builder()
                     .email(email)
                     .resetPasswordCode(RandomNumberUtil.generateRandomCode(64))
                     .build();
 
-            redisService.setValue(email, userResetPasswordResponse, TimeUnit.MILLISECONDS, 1800000L, true);
+            redisService.setValue("PASSWORDREQUEST_" + email, userResetPasswordResponse, TimeUnit.MILLISECONDS, 1800000L, true);
         }
 
-        trySendKafkaMessage(userResetPasswordResponse.toString());
-        log.error(userResetPasswordResponse.getResetPasswordCode());
-        log.error(email);
+        trySendKafkaMessage(userResetPasswordResponse.toString(), PASSWORD_RESET_TOPIC);
+        User user = getUserByEmail(email);
+        String resetPasswordUrl = "http://localhost:8085/api/v1/user/resetpassword/?id=" + user.getIdentifier() + "&hash=" + userResetPasswordResponse.getResetPasswordCode();
+        log.error(resetPasswordUrl);
+    }
+
+    @Transactional
+    @Override
+    public void resetPassword(UserResetPasswordRequest request, UUID id, String code) throws Exception {
+        User user = userRepository.findById(id).orElseThrow(()-> new UserNotFoundException("User not found"));
+
+        UserResetPasswordResponse userResetPasswordResponse = (UserResetPasswordResponse) redisService.getValue("PASSWORDREQUEST_" + user.getEmail(), UserResetPasswordResponse.class);
+        if (userResetPasswordResponse == null) throw new Exception("UserResetPasswordResponse does not exists");
+
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) throw new IllegalArgumentException("The passwords you entered were not identical. Please try again.");
+
+        if (!PasswordValidatorHelper.isValidPassword(request.getConfirmPassword())) throw new InvalidPasswordException();
+
+        user.setPassword(passwordEncoder.encode(request.getConfirmPassword()));
+        userRepository.save(user);
+
+        redisService.removeKey("PASSWORDREQUEST_" + userResetPasswordResponse.getEmail());
     }
 
     @Override
@@ -153,7 +168,7 @@ public class UsersAuthenticationServiceImpl implements IUsersAuthenticationServi
     }
 
     @Transactional
-    private void trySendKafkaMessage(String email) throws Exception {
+    private void trySendKafkaMessage(String email, String TOPIC) throws Exception {
         try {
             kafkaTemplate.send(TOPIC, email);
             log.error("Mensagem enviada com SUCESSO para o tópico: {}", TOPIC);

@@ -1,5 +1,6 @@
 package com.devsouzx.accounts.dto.user;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -11,11 +12,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserResetPasswordRequest {
+public class UserRequestResetPasswordRequest {
+    @Email
     @NotBlank
     @NotNull
-    private String newPassword;
-    @NotBlank
-    @NotNull
-    private String confirmPassword;
+    private String email;
 }

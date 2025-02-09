@@ -8,9 +8,16 @@ import org.springframework.kafka.config.TopicBuilder;
 @Configuration
 public class KafkaTopicConfig {
     @Bean
-    public NewTopic topic() {
+    public NewTopic registrationTopic() {
         return TopicBuilder
                 .name("letterboxdclone-new-register")
+                .build();
+    }
+
+    @Bean
+    public NewTopic passwordResetTopic() {
+        return TopicBuilder
+                .name("letterboxdclone-password-reset")
                 .build();
     }
 }
