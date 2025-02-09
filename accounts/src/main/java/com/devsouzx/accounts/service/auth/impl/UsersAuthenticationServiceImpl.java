@@ -1,4 +1,4 @@
-package com.devsouzx.accounts.service.register.impl;
+package com.devsouzx.accounts.service.auth.impl;
 
 import com.devsouzx.accounts.database.model.User;
 import com.devsouzx.accounts.database.repository.UserRepository;
@@ -6,7 +6,7 @@ import com.devsouzx.accounts.dto.user.*;
 import com.devsouzx.accounts.handler.exceptions.*;
 import com.devsouzx.accounts.service.jwt.JwtService;
 import com.devsouzx.accounts.service.redis.RedisService;
-import com.devsouzx.accounts.service.register.IUsersRegisterService;
+import com.devsouzx.accounts.service.auth.IUsersAuthenticationService;
 import com.devsouzx.accounts.util.PasswordValidatorHelper;
 import com.devsouzx.accounts.util.RandomNumberUtil;
 import java.time.LocalDateTime;
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class UsersRegisterServiceImpl implements IUsersRegisterService {
+public class UsersAuthenticationServiceImpl implements IUsersAuthenticationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final RedisService redisService;
@@ -32,7 +32,7 @@ public class UsersRegisterServiceImpl implements IUsersRegisterService {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private static final String TOPIC = "letterboxdclone-new-register";
 
-    public UsersRegisterServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, RedisService redisService, JwtService jwtService, AuthenticationManager authenticationManager, KafkaTemplate<String, String> kafkaTemplate) {
+    public UsersAuthenticationServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, RedisService redisService, JwtService jwtService, AuthenticationManager authenticationManager, KafkaTemplate<String, String> kafkaTemplate) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.redisService = redisService;

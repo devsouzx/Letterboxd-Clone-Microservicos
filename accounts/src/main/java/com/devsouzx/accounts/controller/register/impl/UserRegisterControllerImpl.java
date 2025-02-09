@@ -5,7 +5,7 @@ import com.devsouzx.accounts.database.model.User;
 import com.devsouzx.accounts.dto.user.AuthRequest;
 import com.devsouzx.accounts.dto.user.TokenResponse;
 import com.devsouzx.accounts.dto.user.UserRegistrationRequest;
-import com.devsouzx.accounts.service.register.IUsersRegisterService;
+import com.devsouzx.accounts.service.auth.IUsersAuthenticationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,20 +16,20 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(value = "/api/v1")
 public class UserRegisterControllerImpl implements IUserRegisterController {
-    private final IUsersRegisterService iUsersRegisterService;
+    private final IUsersAuthenticationService iUsersAuthenticationService;
 
-    public UserRegisterControllerImpl(IUsersRegisterService iUsersRegisterService) {
-        this.iUsersRegisterService = iUsersRegisterService;
+    public UserRegisterControllerImpl(IUsersAuthenticationService iUsersAuthenticationService) {
+        this.iUsersAuthenticationService = iUsersAuthenticationService;
     }
 
     @PostMapping(value = "/register")
     public ResponseEntity<TokenResponse> register(@RequestBody UserRegistrationRequest request) throws Exception {
-        return ResponseEntity.ok(iUsersRegisterService.register(request));
+        return ResponseEntity.ok(iUsersAuthenticationService.register(request));
     }
 
     @PostMapping(value = "/sign-in")
     public ResponseEntity<TokenResponse> login(@RequestBody AuthRequest request) throws Exception {
-        return ResponseEntity.ok(iUsersRegisterService.authenticate(request, request.getRememberMe()));
+        return ResponseEntity.ok(iUsersAuthenticationService.authenticate(request, request.getRememberMe()));
     }
 
     @GetMapping(value = "/user/validate.do/{code}")
@@ -37,7 +37,7 @@ public class UserRegisterControllerImpl implements IUserRegisterController {
     public ResponseEntity<Void> validateAccount(@AuthenticationPrincipal UserDetails userDetails,
                                             @PathVariable("code") String code) throws Exception {
         String email = ((User) userDetails).getEmail();
-        iUsersRegisterService.validateAccount(email, code);
+        iUsersAuthenticationService.validateAccount(email, code);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }

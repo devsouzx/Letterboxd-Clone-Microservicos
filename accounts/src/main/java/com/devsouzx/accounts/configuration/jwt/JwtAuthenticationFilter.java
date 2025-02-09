@@ -1,4 +1,4 @@
-package com.devsouzx.accounts.infra.security.jwt;
+package com.devsouzx.accounts.configuration.jwt;
 
 import com.devsouzx.accounts.service.jwt.JwtService;
 import jakarta.servlet.FilterChain;
