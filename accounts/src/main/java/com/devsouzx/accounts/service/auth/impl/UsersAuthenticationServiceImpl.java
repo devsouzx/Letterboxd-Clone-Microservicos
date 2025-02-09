@@ -178,6 +178,6 @@ public class UsersAuthenticationServiceImpl implements IUsersAuthenticationServi
     }
 
     public User getUserByEmail(String email) throws Exception {
-        return userRepository.findByEmail(email).orElseThrow(()-> new UserNotFoundException("User not found"));
+        return userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
     }
 }
