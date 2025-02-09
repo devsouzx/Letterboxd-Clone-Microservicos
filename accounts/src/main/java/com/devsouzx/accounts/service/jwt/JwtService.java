@@ -1,9 +1,12 @@
 package com.devsouzx.accounts.service.jwt;
 
+import com.devsouzx.accounts.database.model.User;
+import com.devsouzx.accounts.dto.user.TokenResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -20,19 +23,36 @@ public class JwtService {
     @Value("${jwt.expiration}")
     private Long expiration;
 
-    public String generateToken(UserDetails userDetails) {
-        Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userDetails.getUsername());
+    public User getUser(Authentication authentication) {
+        return (User) authentication.getPrincipal();
     }
 
-    private String createToken(Map<String, Object> claims, String subject) {
-        return Jwts.builder()
+    public TokenResponse generateToken(Authentication authentication, Boolean expire) {
+        Map<String, Object> claims = new HashMap<>();
+
+        final User user = (User) authentication.getPrincipal();
+
+        final String auth = Jwts.builder()
                 .setClaims(claims)
-                .setSubject(subject)
+                .setSubject(user.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .setExpiration(defineExpiration(expire))
                 .signWith(SignatureAlgorithm.HS256, secret)
                 .compact();
+
+        return TokenResponse.builder()
+                .token(auth)
+                .expiresIn(defineExpiration(expire).getTime())
+                .firstAccess(user.getFirstAccess())
+                .username(user.getUsername())
+                .build();
+    }
+
+    private Date defineExpiration(Boolean expire) {
+        if (expire) {
+            return new Date(System.currentTimeMillis() + expiration);
+        }
+        return new Date(System.currentTimeMillis() + 31557600000000L);
     }
 
     public Boolean validateToken(String token, UserDetails userDetails) {

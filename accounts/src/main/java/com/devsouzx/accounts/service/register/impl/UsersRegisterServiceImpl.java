@@ -2,8 +2,7 @@ package com.devsouzx.accounts.service.register.impl;
 
 import com.devsouzx.accounts.database.model.User;
 import com.devsouzx.accounts.database.repository.UserRepository;
-import com.devsouzx.accounts.dto.user.UserConfirmationCodeResponse;
-import com.devsouzx.accounts.dto.user.UserRegistrationRequest;
+import com.devsouzx.accounts.dto.user.*;
 import com.devsouzx.accounts.handler.exceptions.*;
 import com.devsouzx.accounts.service.jwt.JwtService;
 import com.devsouzx.accounts.service.redis.RedisService;
@@ -18,8 +17,7 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -45,7 +43,7 @@ public class UsersRegisterServiceImpl implements IUsersRegisterService {
 
     @Override
     @Transactional
-    public String register(UserRegistrationRequest request) throws Exception {
+    public TokenResponse register(UserRegistrationRequest request) throws Exception {
         Optional<User> user = userRepository.findByUsername(request.getUsername());
         if (user.isPresent()) {
             throw new UsernameAlreadyExistsException("Someone has already taken that username.");
@@ -73,14 +71,30 @@ public class UsersRegisterServiceImpl implements IUsersRegisterService {
                 .role(User.Role.USER)
                 .build());
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-        );
-        final UserDetails userDetails = getUserByEmail(request.getEmail());
-
         sendValidationEmail(request.getEmail());
 
-        return jwtService.generateToken(userDetails);
+        return authenticate(new AuthRequest(request.getUsername(), request.getPassword(), false), false);
+    }
+
+    @Override
+    @Transactional
+    public TokenResponse authenticate(AuthRequest request, Boolean login) throws Exception {
+        Authentication authentication = authenticationManager.authenticate(request.build());
+        User user = jwtService.getUser(authentication);
+
+        if (login && !user.getConfirmedEmail()) throw new NotConfirmedEmailException();
+
+        if (login) {
+            user.setFirstAccess(false);
+            userRepository.save(user);
+        }
+
+        TokenResponse tokenResponse = (TokenResponse) redisService.getValue("AUTH_" + user.getIdentifier(), TokenResponse.class);
+        if (tokenResponse == null) {
+            tokenResponse = jwtService.generateToken(authentication, request.getRememberMe());
+            redisService.setValue("AUTH_" + user.getIdentifier(), tokenResponse, TimeUnit.MILLISECONDS, tokenResponse.getExpiresIn(), true);
+        }
+        return tokenResponse;
     }
 
     @Override

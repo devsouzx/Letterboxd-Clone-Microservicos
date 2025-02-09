@@ -1,11 +1,14 @@
 package com.devsouzx.accounts.controller.register;
 
+import com.devsouzx.accounts.dto.user.AuthRequest;
+import com.devsouzx.accounts.dto.user.TokenResponse;
 import com.devsouzx.accounts.dto.user.UserRegistrationRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 
 public interface IUserRegisterController {
-    ResponseEntity<Void> register(@Valid UserRegistrationRequest request) throws Exception;
-    ResponseEntity<Void> sendValidationEmail(String email) throws Exception;
-    ResponseEntity<Void> validateAccount(String email, String code) throws Exception;
+    ResponseEntity<TokenResponse> register(@Valid UserRegistrationRequest request) throws Exception;
+    ResponseEntity<TokenResponse> login(AuthRequest request) throws Exception;
+    ResponseEntity<Void> validateAccount(UserDetails userDetails, String code) throws Exception;
 }
