@@ -37,6 +37,7 @@ public class SecurityConfig {
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/api/v1/register").permitAll()
                         .requestMatchers("/api/v1/sign-in").permitAll()
+                        .requestMatchers("/api/v1/user/request-password-reset/").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

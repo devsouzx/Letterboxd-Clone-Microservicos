@@ -106,7 +106,7 @@ public class UsersAuthenticationServiceImpl implements IUsersAuthenticationServi
         if(confirmationCodeResponse == null){
             confirmationCodeResponse = UserConfirmationCodeResponse.builder()
                     .email(email)
-                    .confirmationCode(RandomNumberUtil.generateRandomCode())
+                    .confirmationCode(RandomNumberUtil.generateRandomCode(120))
                     .build();
 
             redisService.setValue(email, confirmationCodeResponse, TimeUnit.MILLISECONDS, 1800000L, true);
@@ -114,6 +114,25 @@ public class UsersAuthenticationServiceImpl implements IUsersAuthenticationServi
 
         trySendKafkaMessage(confirmationCodeResponse.toString());
         log.error(confirmationCodeResponse.getConfirmationCode());
+    }
+
+    @Transactional
+    @Override
+    public void sendPasswordResetEmail(String email) throws Exception {
+        UserResetPasswordResponse userResetPasswordResponse =
+                (UserResetPasswordResponse) redisService.getValue(email, UserResetPasswordResponse.class);
+        if (userResetPasswordResponse == null) {
+            userResetPasswordResponse = UserResetPasswordResponse.builder()
+                    .email(email)
+                    .resetPasswordCode(RandomNumberUtil.generateRandomCode(64))
+                    .build();
+
+            redisService.setValue(email, userResetPasswordResponse, TimeUnit.MILLISECONDS, 1800000L, true);
+        }
+
+        trySendKafkaMessage(userResetPasswordResponse.toString());
+        log.error(userResetPasswordResponse.getResetPasswordCode());
+        log.error(email);
     }
 
     @Override

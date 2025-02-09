@@ -5,6 +5,7 @@ import com.devsouzx.accounts.database.model.User;
 import com.devsouzx.accounts.dto.user.AuthRequest;
 import com.devsouzx.accounts.dto.user.TokenResponse;
 import com.devsouzx.accounts.dto.user.UserRegistrationRequest;
+import com.devsouzx.accounts.dto.user.UserResetPasswordRequest;
 import com.devsouzx.accounts.service.auth.IUsersAuthenticationService;
 import com.devsouzx.accounts.service.redis.RedisService;
 import org.springframework.http.HttpStatus;
@@ -41,6 +42,12 @@ public class UserRegisterControllerImpl implements IUserRegisterController {
         String email = ((User) userDetails).getEmail();
         redisService.isValidUser(userDetails);
         iUsersAuthenticationService.validateAccount(email, code);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @GetMapping(value = "/user/request-password-reset/")
+    public ResponseEntity<Void> sendRequestPasswordResetEmail(@RequestBody UserResetPasswordRequest request) throws Exception {
+        iUsersAuthenticationService.sendPasswordResetEmail(request.getEmail());
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }

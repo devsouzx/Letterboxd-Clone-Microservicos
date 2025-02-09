@@ -8,5 +8,6 @@ public interface IUsersAuthenticationService {
     TokenResponse register(UserRegistrationRequest request) throws Exception;
     TokenResponse authenticate(AuthRequest request, Boolean login) throws Exception;
     void sendValidationEmail(String email) throws Exception;
+    void sendPasswordResetEmail(String email) throws Exception;
     void validateAccount(String email, String code) throws Exception;
 }
