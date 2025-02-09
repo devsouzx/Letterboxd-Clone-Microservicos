@@ -6,6 +6,7 @@ import com.devsouzx.accounts.dto.user.AuthRequest;
 import com.devsouzx.accounts.dto.user.TokenResponse;
 import com.devsouzx.accounts.dto.user.UserRegistrationRequest;
 import com.devsouzx.accounts.service.auth.IUsersAuthenticationService;
+import com.devsouzx.accounts.service.redis.RedisService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(value = "/api/v1")
 public class UserRegisterControllerImpl implements IUserRegisterController {
     private final IUsersAuthenticationService iUsersAuthenticationService;
+    private RedisService redisService;
 
     public UserRegisterControllerImpl(IUsersAuthenticationService iUsersAuthenticationService) {
         this.iUsersAuthenticationService = iUsersAuthenticationService;
@@ -37,6 +39,7 @@ public class UserRegisterControllerImpl implements IUserRegisterController {
     public ResponseEntity<Void> validateAccount(@AuthenticationPrincipal UserDetails userDetails,
                                             @PathVariable("code") String code) throws Exception {
         String email = ((User) userDetails).getEmail();
+        redisService.isValidUser(userDetails);
         iUsersAuthenticationService.validateAccount(email, code);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

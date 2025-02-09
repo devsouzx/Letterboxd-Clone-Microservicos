@@ -1,13 +1,18 @@
 package com.devsouzx.accounts.service.redis;
 
+import com.devsouzx.accounts.database.model.User;
+import com.devsouzx.accounts.dto.user.TokenResponse;
+import com.devsouzx.accounts.handler.exceptions.ApiAuthorizationException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -44,5 +49,12 @@ public class RedisService {
         }
         template.opsForValue().set(key, value);
         template.expire(key, timeout, unit);
+    }
+
+    public void isValidUser(UserDetails userDetails) throws Exception {
+        String userIdentifier = ((User) userDetails).getIdentifier().toString();
+        if(getValue("AUTH_" + userIdentifier, TokenResponse.class) == null){
+            throw new ApiAuthorizationException();
+        }
     }
 }
