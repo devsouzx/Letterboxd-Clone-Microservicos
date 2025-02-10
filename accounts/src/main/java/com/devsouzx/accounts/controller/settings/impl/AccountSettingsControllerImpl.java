@@ -1,10 +1,12 @@
 package com.devsouzx.accounts.controller.settings.impl;
 
 import com.devsouzx.accounts.controller.settings.IAccountSettingsController;
+import com.devsouzx.accounts.dto.user.AccountSettingsChangePasswordRequest;
 import com.devsouzx.accounts.dto.user.UserProfileInfo;
 import com.devsouzx.accounts.service.redis.RedisService;
 import com.devsouzx.accounts.service.settings.IAccountSettingsService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -35,5 +37,13 @@ public class AccountSettingsControllerImpl implements IAccountSettingsController
     public ResponseEntity<UserProfileInfo> updateProfileInfo(@AuthenticationPrincipal UserDetails userDetails, @RequestBody UserProfileInfo request) throws Exception {
         redisService.isValidUser(userDetails);
         return ResponseEntity.ok(iAccountSettingsService.updateProfileInfo(userDetails, request));
+    }
+
+    @PutMapping(value = "/auth")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> changePassword(@AuthenticationPrincipal UserDetails userDetails, @RequestBody AccountSettingsChangePasswordRequest request) throws Exception {
+        redisService.isValidUser(userDetails);
+        iAccountSettingsService.changePassword(userDetails, request);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }
