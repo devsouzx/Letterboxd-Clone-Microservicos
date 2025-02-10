@@ -78,6 +78,9 @@ public class User implements UserDetails {
     @Column(name = "verified")
     private Boolean verified;
 
+    @Column(name = "replies")
+    private String replies;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 
