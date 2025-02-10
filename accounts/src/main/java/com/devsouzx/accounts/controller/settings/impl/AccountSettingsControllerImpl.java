@@ -2,25 +2,38 @@ package com.devsouzx.accounts.controller.settings.impl;
 
 import com.devsouzx.accounts.controller.settings.IAccountSettingsController;
 import com.devsouzx.accounts.dto.user.UserProfileInfo;
+import com.devsouzx.accounts.service.redis.RedisService;
 import com.devsouzx.accounts.service.settings.IAccountSettingsService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping(value = "/api/v1/settings")
 public class AccountSettingsControllerImpl implements IAccountSettingsController {
     private final IAccountSettingsService iAccountSettingsService;
+    private final RedisService redisService;
 
-    public AccountSettingsControllerImpl(IAccountSettingsService iAccountSettingsService) {
+    public AccountSettingsControllerImpl(IAccountSettingsService iAccountSettingsService, RedisService redisService) {
         this.iAccountSettingsService = iAccountSettingsService;
+        this.redisService = redisService;
     }
 
     @GetMapping
-    public ResponseEntity<UserProfileInfo> getProfileInfo(@AuthenticationPrincipal UserDetails userDetails) {
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserProfileInfo> getProfileInfo(@AuthenticationPrincipal UserDetails userDetails) throws Exception {
+        redisService.isValidUser(userDetails);
         return ResponseEntity.ok(iAccountSettingsService.getProfileInfo(userDetails));
+    }
+
+    @PutMapping
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserProfileInfo> updateProfileInfo(@AuthenticationPrincipal UserDetails userDetails, @RequestBody UserProfileInfo request) throws Exception {
+        redisService.isValidUser(userDetails);
+        return ResponseEntity.ok(iAccountSettingsService.updateProfileInfo(userDetails, request));
     }
 }
