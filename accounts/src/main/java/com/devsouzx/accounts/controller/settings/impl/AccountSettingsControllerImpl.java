@@ -2,16 +2,19 @@ package com.devsouzx.accounts.controller.settings.impl;
 
 import com.devsouzx.accounts.controller.settings.IAccountSettingsController;
 import com.devsouzx.accounts.dto.user.AccountSettingsChangePasswordRequest;
+import com.devsouzx.accounts.dto.user.AvatarUrlResponse;
 import com.devsouzx.accounts.dto.user.UserProfileInfo;
 import com.devsouzx.accounts.service.redis.RedisService;
 import com.devsouzx.accounts.service.settings.IAccountSettingsService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @RestController
@@ -45,5 +48,17 @@ public class AccountSettingsControllerImpl implements IAccountSettingsController
         redisService.isValidUser(userDetails);
         iAccountSettingsService.changePassword(userDetails, request);
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @PostMapping(value = "/avatar", consumes = "multipart/form-data")
+    public ResponseEntity<String> uploadUserAvatar(@AuthenticationPrincipal UserDetails userDetails, @RequestParam("avatar")MultipartFile avatar) throws Exception {
+        iAccountSettingsService.updateAvatar(userDetails, avatar);
+        redisService.isValidUser(userDetails);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @GetMapping(value = "/avatar")
+    public ResponseEntity<AvatarUrlResponse> getUserAvatar(@AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(iAccountSettingsService.getUserAvatar(userDetails));
     }
 }
