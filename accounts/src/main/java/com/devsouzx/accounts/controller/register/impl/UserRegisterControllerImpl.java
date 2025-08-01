@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping(value = "/api/v1")
+@RequestMapping(value = "/api/v1/accounts")
 public class UserRegisterControllerImpl implements IUserRegisterController {
     private final IUsersAuthenticationService iUsersAuthenticationService;
     private final RedisService redisService;

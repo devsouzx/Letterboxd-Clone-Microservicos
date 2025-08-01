@@ -35,8 +35,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth-> auth
                         .requestMatchers("/").permitAll()
-                        .requestMatchers("/api/v1/register").permitAll()
-                        .requestMatchers("/api/v1/sign-in").permitAll()
+                        .requestMatchers("/api/v1/accounts/register").permitAll()
+                        .requestMatchers("/api/v1/accounts/sign-in").permitAll()
                         .requestMatchers("/api/v1/user/request-password-reset/").permitAll()
                         .requestMatchers("/api/v1/user/resetpassword/**").permitAll()
                         .anyRequest().authenticated()

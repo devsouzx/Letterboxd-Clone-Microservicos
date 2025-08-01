@@ -8,7 +8,6 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class TMDbFilmReleaseDatesResponse {
     @JsonProperty("id")
     private Integer id;

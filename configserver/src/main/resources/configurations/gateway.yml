@@ -28,8 +28,3 @@ spring:
             locator:
               enabled: true
               lower-case-service-id: true
-    loadbalancer:
-      ribbon:
-        enabled: false
-  main:
-    web-application-type: reactive
