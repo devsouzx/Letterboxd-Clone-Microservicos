@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/movie")
+@RequestMapping("/api/v1/tmdb/movie")
 public class TMDbFilmController {
     @Autowired
     private ITMDbClient tmdbClient;

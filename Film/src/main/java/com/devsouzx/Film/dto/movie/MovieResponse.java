@@ -1,35 +1,34 @@
-package com.devsouzx.Film.database.model;
+package com.devsouzx.Film.dto.movie;
 
-import jakarta.persistence.*;
-import lombok.*;
+import com.devsouzx.Film.database.model.ActorRole;
+import com.devsouzx.Film.database.model.CrewMember;
+import com.devsouzx.Film.database.model.ReleaseInfo;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.UUID;
 
-@Getter
-@Setter
-@Entity
-@Builder
-@AllArgsConstructor
+@Data
 @NoArgsConstructor
-@Table(name = "movies")
-public class Movie {
-    @Id
-    @Column(name = "identifier", length = 36)
-    @GeneratedValue(strategy = GenerationType.UUID)
+@AllArgsConstructor
+@Builder
+public class MovieResponse {
     private UUID identifier;
     private String title;
     private String releaseYear;
     private String synopsis;
     private String tagline;
     private Integer runtime;
+
     private String country;
     private String primaryLanguage;
     private String trailerUrl;
     private String posterUrl;
     private String backdropUrl;
 
-    @Column(unique = true, nullable = false)
     private Integer tmdbID;
 
     private List<String> spokenLanguages;
@@ -39,12 +38,7 @@ public class Movie {
     private List<String> themes;
     private List<String> whereToWatch;
 
-    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ActorRole> cast;
-
-    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CrewMember> crew;
-
-    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReleaseInfo> releases;
 }

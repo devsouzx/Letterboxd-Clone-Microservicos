@@ -28,8 +28,8 @@ public class AuthenticationGlobalFilter implements GlobalFilter, Ordered {
     private static final List<String> PUBLIC_PATHS = List.of(
             "/api/v1/accounts/sign-in",
             "/api/v1/accounts/register",
-            "/api/v1/movie/popular",
-            "/api/v1/movie/now_playing",
+            "/api/v1/tmdb/movie/popular",
+            "/api/v1/tmdb/movie/now_playing",
             "/eureka/**"
     );
 
