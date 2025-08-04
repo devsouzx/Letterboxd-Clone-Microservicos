@@ -23,6 +23,6 @@ public class MovieController implements IMovieController {
 
     @GetMapping("/{id}")
     public ResponseEntity<MovieResponse> getMovieByTmdbID(@PathVariable("id") Integer id) {
-        return ResponseEntity.ok(movieService.getMovieByTmdbID(id));
+        return ResponseEntity.ok(movieService.getOrSaveMovieByTmdbID(id));
     }
 }

@@ -17,11 +17,14 @@ public class ActorRole {
     @Column(name = "identifier", length = 36)
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID identifier;
+
+    @Column(name = "actor_name")
     private String actorName;
+
+    @Column(name = "character_name")
     private String characterName;
-    private UUID movieID;
 
     @ManyToOne
-    @JoinColumn(name = "movie_id")
+    @JoinColumn(name = "movie_id", nullable = false)
     private Movie movie;
 }

@@ -18,13 +18,23 @@ public class ReleaseInfo {
     @Column(name = "identifier", length = 36)
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID identifier;
+
+    @Column(name = "date")
     private Date date;
+
+    @Column(name = "country")
     private String country;
+
+    @Column(name = "type")
     private String type;
+
+    @Column(name = "location")
     private String location;
+
+    @Column(name = "classification")
     private String classification;
 
     @ManyToOne
-    @JoinColumn(name = "movie_id")
+    @JoinColumn(name = "movie_id", nullable = false)
     private Movie movie;
 }

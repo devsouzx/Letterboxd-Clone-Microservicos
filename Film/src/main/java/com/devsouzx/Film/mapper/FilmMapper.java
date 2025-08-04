@@ -1,12 +1,13 @@
 package com.devsouzx.Film.mapper;
 
+import com.devsouzx.Film.database.model.Movie;
 import com.devsouzx.Film.dto.movie.MovieResponse;
 import com.devsouzx.Film.dto.tmdb.TMDbFilmResponse;
 import org.springframework.stereotype.Service;
 
 @Service
 public class FilmMapper {
-    public MovieResponse toMovieResponse(TMDbFilmResponse tmdbResponse) {
+    public MovieResponse toMovieResponseFromTmdb(TMDbFilmResponse tmdbResponse) {
         return MovieResponse.builder()
                 .title(tmdbResponse.getTitle())
                 .releaseYear(tmdbResponse.getReleaseDate() != null && tmdbResponse.getReleaseDate().length() >= 4
@@ -43,6 +44,53 @@ public class FilmMapper {
                 // .themes()
                 // .whereToWatch()
                 // .alternativeTitles()
+                .build();
+    }
+
+    public MovieResponse toMovieResponse(Movie movie) {
+        return MovieResponse.builder()
+                .identifier(movie.getIdentifier())
+                .title(movie.getTitle())
+                .releaseYear(movie.getReleaseYear())
+                .synopsis(movie.getSynopsis())
+                .tagline(movie.getTagline())
+                .runtime(movie.getRuntime())
+                .country(movie.getCountry())
+                .primaryLanguage(movie.getPrimaryLanguage())
+                .posterUrl(movie.getPosterUrl())
+                .backdropUrl(movie.getBackdropUrl())
+                .tmdbID(movie.getTmdbID())
+                .spokenLanguages(movie.getSpokenLanguages())
+                .studios(movie.getStudios())
+                .genres(movie.getGenres())
+                .cast(movie.getCast())
+                .crew(movie.getCrew())
+                .releases(movie.getReleases())
+                .themes(movie.getThemes())
+                .alternativeTitles(movie.getAlternativeTitles())
+                .build();
+    }
+
+    public Movie toMovie(MovieResponse movieResponse) {
+        return Movie.builder()
+                .title(movieResponse.getTitle())
+                .releaseYear(movieResponse.getReleaseYear())
+                .synopsis(movieResponse.getSynopsis())
+                .tagline(movieResponse.getTagline())
+                .runtime(movieResponse.getRuntime())
+                .country(movieResponse.getCountry())
+                .primaryLanguage(movieResponse.getPrimaryLanguage())
+                .posterUrl(movieResponse.getPosterUrl())
+                .backdropUrl(movieResponse.getBackdropUrl())
+                .tmdbID(movieResponse.getTmdbID())
+                .spokenLanguages(movieResponse.getSpokenLanguages())
+                .studios(movieResponse.getStudios())
+                .genres(movieResponse.getGenres())
+                .cast(movieResponse.getCast())
+                .crew(movieResponse.getCrew())
+                .releases(movieResponse.getReleases())
+                .themes(movieResponse.getThemes())
+                .alternativeTitles(movieResponse.getAlternativeTitles())
                 .build();
     }
 }

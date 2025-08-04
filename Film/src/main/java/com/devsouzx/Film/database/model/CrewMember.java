@@ -17,10 +17,14 @@ public class CrewMember {
     @Column(name = "identifier", length = 36)
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID identifier;
+
+    @Column(name = "name")
     private String name;
+
+    @Column(name = "role")
     private String role;
 
     @ManyToOne
-    @JoinColumn(name = "movie_id")
+    @JoinColumn(name = "movie_id", nullable = false)
     private Movie movie;
 }
