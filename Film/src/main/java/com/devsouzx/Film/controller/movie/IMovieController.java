@@ -7,4 +7,5 @@ import java.util.UUID;
 
 public interface IMovieController {
     ResponseEntity<MovieResponse> getMovieByTmdbID(Integer id);
+    ResponseEntity<MovieResponse> getMovieBySlug(String slug);
 }

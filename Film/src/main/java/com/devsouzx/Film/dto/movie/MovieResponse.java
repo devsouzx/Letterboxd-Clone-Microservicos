@@ -18,6 +18,7 @@ import java.util.UUID;
 public class MovieResponse {
     private UUID identifier;
     private String title;
+    private String slug;
     private String releaseYear;
     private String synopsis;
     private String tagline;

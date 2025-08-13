@@ -9,4 +9,5 @@ public interface IMovieService {
     public MovieResponse getOrSaveMovieByTmdbID(Integer tmdbID);
     public MovieResponse saveFromTmdb(Integer tmdbID);
     MovieResponse updateFromTmdb(UUID identifier);
+    MovieResponse getMovieBySlug(String slug);
 }

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/movie")
+@RequestMapping("/api/v1/film")
 public class MovieController implements IMovieController {
     private final IMovieService movieService;
 
@@ -21,8 +21,13 @@ public class MovieController implements IMovieController {
         this.movieService = movieService;
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/tmdb/{id}")
     public ResponseEntity<MovieResponse> getMovieByTmdbID(@PathVariable("id") Integer id) {
         return ResponseEntity.ok(movieService.getOrSaveMovieByTmdbID(id));
+    }
+
+    @GetMapping("/{slug}")
+    public ResponseEntity<MovieResponse> getMovieBySlug(@PathVariable("slug") String slug) {
+        return ResponseEntity.ok(movieService.getMovieBySlug(slug));
     }
 }

@@ -68,6 +68,7 @@ public class FilmMapper {
                 .releases(movie.getReleases())
                 .themes(movie.getThemes())
                 .alternativeTitles(movie.getAlternativeTitles())
+                .slug(movie.getSlug())
                 .build();
     }
 
@@ -91,6 +92,7 @@ public class FilmMapper {
                 .releases(movieResponse.getReleases())
                 .themes(movieResponse.getThemes())
                 .alternativeTitles(movieResponse.getAlternativeTitles())
+                .slug(movieResponse.getSlug())
                 .build();
     }
 }

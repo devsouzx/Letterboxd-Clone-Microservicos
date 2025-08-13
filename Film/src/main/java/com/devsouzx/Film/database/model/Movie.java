@@ -79,11 +79,14 @@ public class Movie {
     @Column(name = "theme")
     private List<String> themes;
 
-    @Column(name = "last_updated")
-    private LocalDateTime lastUpdated;
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
-    @Column(name = "created")
-    private LocalDateTime created;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "slug")
+    private String slug;
 
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ActorRole> cast;
@@ -95,7 +98,7 @@ public class Movie {
     private List<ReleaseInfo> releases;
 
     public Boolean isStale() {
-        if (lastUpdated == null) return true;
-        return Duration.between(lastUpdated, LocalDateTime.now()).toDays() >= 5;
+        if (updatedAt == null) return true;
+        return Duration.between(updatedAt, LocalDateTime.now()).toDays() >= 5;
     }
 }

@@ -9,4 +9,5 @@ import java.util.UUID;
 public interface MovieRepository extends JpaRepository<Movie, UUID> {
     Optional<Movie> getByTmdbID(Integer tmdbID);
     Optional<Movie> getByIdentifier(UUID identifier);
+    Optional<Movie> getMovieBySlug(String slug);
 }

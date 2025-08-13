@@ -1,6 +1,6 @@
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
-CREATE TABLE movies (
+CREATE TABLE IF NOT EXISTS movies (
     identifier UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title TEXT,
     release_year TEXT,
@@ -13,6 +13,7 @@ CREATE TABLE movies (
     poster_url TEXT,
     backdrop_url TEXT,
     tmdbid INTEGER UNIQUE NOT NULL,
+    slug TEXT UNIQUE NOT NULL,
 
     spoken_languages TEXT[],
     alternative_titles TEXT[],
@@ -20,6 +21,6 @@ CREATE TABLE movies (
     genres TEXT[],
     themes TEXT[],
 
-    last_updated TIMESTAMP,
-    created TIMESTAMP
+    updated_at TIMESTAMP,
+    created_at TIMESTAMP
 );

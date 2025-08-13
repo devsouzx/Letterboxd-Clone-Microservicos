@@ -10,6 +10,7 @@ import com.devsouzx.Film.service.movie.IMovieService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -56,8 +57,8 @@ public class MovieService implements IMovieService {
 
         Movie updatedMovie = mapper.toMovie(updatedData);
         updatedMovie.setIdentifier(movie.getIdentifier());
-        updatedMovie.setCreated(movie.getCreated());
-        updatedMovie.setLastUpdated(LocalDateTime.now());
+        updatedMovie.setCreatedAt(movie.getCreatedAt());
+        updatedMovie.setUpdatedAt(LocalDateTime.now());
 
         updatedMovie = movieRepository.save(updatedMovie);
 
@@ -69,11 +70,24 @@ public class MovieService implements IMovieService {
 
         Movie movie = mapper.toMovie(movieResponse);
 
-        movie.setCreated(LocalDateTime.now());
-        movie.setLastUpdated(LocalDateTime.now());
+        String slug = movie.getTitle().replace(" ", "-").toLowerCase();
+        Optional<Movie> movieBySlug = movieRepository.getMovieBySlug(slug);
+
+        if (movieBySlug.isPresent()) {
+            slug += "-" + movie.getReleaseYear();
+        }
+
+        movie.setSlug(slug);
+        movie.setCreatedAt(LocalDateTime.now());
+        movie.setUpdatedAt(LocalDateTime.now());
 
         movie = movieRepository.save(movie);
 
+        return mapper.toMovieResponse(movie);
+    }
+
+    public MovieResponse getMovieBySlug(String slug) {
+        Movie movie = movieRepository.getMovieBySlug(slug).orElseThrow(() -> new RuntimeException("Filme não encontrado pelo slug"));
         return mapper.toMovieResponse(movie);
     }
 }
