@@ -5,11 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class UserProfileInfo {
+    private UUID identifier;
     private String username;
     private String givenName;
     private String familyName;
@@ -22,4 +25,5 @@ public class UserProfileInfo {
     private String replies;
     private Boolean includeProfileInMembers;
     private Boolean adultContent;
+    private String avatarUrl;
 }

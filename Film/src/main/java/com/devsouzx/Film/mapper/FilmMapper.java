@@ -1,9 +1,15 @@
 package com.devsouzx.Film.mapper;
 
+import com.devsouzx.Film.database.model.CrewMember;
 import com.devsouzx.Film.database.model.Movie;
+import com.devsouzx.Film.database.model.MovieLikes;
+import com.devsouzx.Film.dto.movie.CrewMemberResponse;
 import com.devsouzx.Film.dto.movie.MovieResponse;
 import com.devsouzx.Film.dto.tmdb.TMDbFilmResponse;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class FilmMapper {
@@ -93,6 +99,13 @@ public class FilmMapper {
                 .themes(movieResponse.getThemes())
                 .alternativeTitles(movieResponse.getAlternativeTitles())
                 .slug(movieResponse.getSlug())
+                .build();
+    }
+
+    public CrewMemberResponse crewToCrewResponse(CrewMember crewMember) {
+        return CrewMemberResponse.builder()
+                .name(crewMember.getName())
+                .role(crewMember.getRole())
                 .build();
     }
 }

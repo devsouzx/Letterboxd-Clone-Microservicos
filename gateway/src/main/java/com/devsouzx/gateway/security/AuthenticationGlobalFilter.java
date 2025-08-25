@@ -69,7 +69,7 @@ public class AuthenticationGlobalFilter implements GlobalFilter, Ordered {
             log.info("Authenticated user: {}", username);
 
             exchange = exchange.mutate()
-                    .request(r -> r.header("username", username))
+                    .request(r -> r.header("LOGGED_USER_IDENTIFIER", username))
                     .build();
 
             return chain.filter(exchange);

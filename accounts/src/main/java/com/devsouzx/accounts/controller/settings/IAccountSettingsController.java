@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface IAccountSettingsController {
-    ResponseEntity<UserProfileInfo> getProfileInfo(UserDetails userDetails) throws Exception;
+    ResponseEntity<UserProfileInfo> getProfileInfo() throws Exception;
     ResponseEntity<UserProfileInfo> updateProfileInfo(UserDetails userDetails, UserProfileInfo request) throws Exception;
     ResponseEntity<Void> changePassword(UserDetails userDetails, AccountSettingsChangePasswordRequest request) throws Exception;
     ResponseEntity<String> uploadUserAvatar(UserDetails userDetails, MultipartFile avatar) throws Exception;

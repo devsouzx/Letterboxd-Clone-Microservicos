@@ -6,6 +6,7 @@ import com.devsouzx.accounts.dto.user.AvatarUrlResponse;
 import com.devsouzx.accounts.dto.user.UserProfileInfo;
 import com.devsouzx.accounts.service.redis.RedisService;
 import com.devsouzx.accounts.service.settings.IAccountSettingsService;
+import com.devsouzx.accounts.util.FindUserIdentifierHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,9 +31,9 @@ public class AccountSettingsControllerImpl implements IAccountSettingsController
 
     @GetMapping
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<UserProfileInfo> getProfileInfo(@AuthenticationPrincipal UserDetails userDetails) throws Exception {
-        redisService.isValidUser(userDetails);
-        return ResponseEntity.ok(iAccountSettingsService.getProfileInfo(userDetails));
+    public ResponseEntity<UserProfileInfo> getProfileInfo() throws Exception {
+        String sessionUserIdentifier = FindUserIdentifierHelper.getIdentifier();
+        return ResponseEntity.ok(iAccountSettingsService.getProfileInfo(sessionUserIdentifier));
     }
 
     @PutMapping
