@@ -19,7 +19,7 @@ public class GatewayApplication {
 		return builder.routes()
 				.route("accounts-service", r -> r.path("/api/v1/accounts/**")
 						.uri("http://localhost:8085"))
-				.route("film-service", r -> r.path("/api/v1/movie/**")
+				.route("film-service", r -> r.path("/api/v1/film/**")
 						.uri("http://localhost:8086"))
 				.build();
 	}

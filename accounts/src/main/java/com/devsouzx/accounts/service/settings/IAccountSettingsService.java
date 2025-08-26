@@ -7,6 +7,8 @@ import com.devsouzx.accounts.dto.user.UserProfileInfo;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.UUID;
+
 public interface IAccountSettingsService {
     User FindUserByUsernameOrEmailOrIdentifier(String targetUserIdentifier);
     UserProfileInfo getProfileInfo(String sessionUserIdentifier);

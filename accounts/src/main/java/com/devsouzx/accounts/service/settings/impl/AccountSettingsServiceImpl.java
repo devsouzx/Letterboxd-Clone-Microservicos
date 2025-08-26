@@ -51,36 +51,31 @@ public class AccountSettingsServiceImpl implements IAccountSettingsService {
                 .adultContent(user.getAdultContent())
                 .customPosters(user.getCustomPosters())
                 .replies(user.getReplies())
-                .avatarUrl(user,getUserAvatar())
+                .avatarUrl(user.getAvatar())
                 .includeProfileInMembers(user.getIncludeProfileInMembers())
                 .build();
     }
 
     @Override
     public UserProfileInfo updateProfileInfo(UserDetails userDetails, UserProfileInfo request) {
-        // Implementar lógica para atualizar perfil do usuário
         return request;
     }
 
     @Override
     public void changePassword(UserDetails userDetails, AccountSettingsChangePasswordRequest request) throws Exception {
-        // Implementar lógica para alteração de senha
     }
 
     @Override
     public String uploadImage(MultipartFile multipartFile) {
-        // Implementar lógica para upload de imagem e retornar URL
         return null;
     }
 
     @Override
     public void updateAvatar(UserDetails userDetails, MultipartFile avatar) {
-        // Implementar lógica para atualizar avatar do usuário
     }
 
     @Override
     public AvatarUrlResponse getUserAvatar(UserDetails userDetails) {
-        // Implementar lógica para buscar URL do avatar do usuário
         return new AvatarUrlResponse();
     }
 }

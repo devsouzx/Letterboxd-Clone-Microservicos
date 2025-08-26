@@ -9,5 +9,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface MovieLikesRepository extends JpaRepository<MovieLikes, MoviesLikesId> {
-    Optional<List<MovieLikes>> getByMovieId(UUID movieId);
+    Optional<List<MovieLikes>> findByIdMovieIdentifier(UUID movieId);
+    Optional<MovieLikes> findAllByIdMovieIdentifierAndIdUserIdentifier(UUID movieIdentifier, UUID userIdentifier);
 }

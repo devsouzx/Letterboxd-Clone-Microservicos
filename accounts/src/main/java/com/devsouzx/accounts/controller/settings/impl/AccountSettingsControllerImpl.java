@@ -7,6 +7,7 @@ import com.devsouzx.accounts.dto.user.UserProfileInfo;
 import com.devsouzx.accounts.service.redis.RedisService;
 import com.devsouzx.accounts.service.settings.IAccountSettingsService;
 import com.devsouzx.accounts.util.FindUserIdentifierHelper;
+import feign.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,9 +18,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.UUID;
+
 @Slf4j
 @RestController
-@RequestMapping(value = "/api/v1/settings")
+@RequestMapping(value = "/api/v1/accounts/settings")
 public class AccountSettingsControllerImpl implements IAccountSettingsController {
     private final IAccountSettingsService iAccountSettingsService;
     private final RedisService redisService;
@@ -34,6 +37,12 @@ public class AccountSettingsControllerImpl implements IAccountSettingsController
     public ResponseEntity<UserProfileInfo> getProfileInfo() throws Exception {
         String sessionUserIdentifier = FindUserIdentifierHelper.getIdentifier();
         return ResponseEntity.ok(iAccountSettingsService.getProfileInfo(sessionUserIdentifier));
+    }
+
+    @GetMapping("/{userIdentifier}")
+    public ResponseEntity<UserProfileInfo> getProfileInfoByIdentifier(@PathVariable("userIdentifier") String identifier, @RequestHeader(value = "LOGGED_USER_IDENTIFIER", required = false) String loggedUser) {
+        log.info("LOGGED_USER_IDENTIFIER recebido: {}", loggedUser);
+        return ResponseEntity.ok(iAccountSettingsService.getProfileInfo(identifier));
     }
 
     @PutMapping

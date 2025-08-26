@@ -40,7 +40,13 @@ public class MovieController implements IMovieController {
     }
 
     @GetMapping("/{slug}/likes")
-    public ResponseEntity<MovieLikesResponse> getMovieLikes(@PathVariable("slug") String slug) {
+    public ResponseEntity<MovieLikesResponse> getMovieLikes(@PathVariable("slug") String slug) throws Exception {
         return ResponseEntity.ok(movieService.getMovieLikesBySlug(slug));
+    }
+
+    @PostMapping("/{slug}/like")
+    public ResponseEntity<Void> likeMovieBySlug(@PathVariable("slug") String slug) throws Exception {
+        movieService.likeOrUnlikeMovieBySlug(slug);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }
